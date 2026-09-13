@@ -15,8 +15,11 @@ without spending £150 on a keyboard.
 
 ## Install
 
-Grab the installer from [Releases](https://github.com/M0hid-ai/typeback/releases),
-run it, done. It starts in the tray with a keycap icon.
+No release is published yet, so for now build it yourself — see
+[Build it yourself](#build-it-yourself) below. `npm run dist` produces an
+installer in `dist/`.
+
+Once it's installed it starts in the tray with a keycap icon.
 
 - **Left click** the tray icon to mute or unmute.
 - **Double click** it to open settings.
