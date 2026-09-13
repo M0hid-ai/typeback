@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:">
+  <title>Typeback</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="../../build/icon.png" alt="" width="32" height="32">
+    <div>
+      <h1>Typeback</h1>
+      <p class="sub" id="statusLine">Listening for keystrokes</p>
+    </div>
+  </div>
+
+  <label class="master" title="Turn all sounds on or off">
+    <input type="checkbox" id="enabled">
+    <span class="switch" aria-hidden="true"></span>
+    <span class="master-label" id="enabledLabel">On</span>
+  </label>
+</header>
+
+<main>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Sound pack</h2>
+      <div class="actions">
+        <button class="ghost" id="importPack">Import pack</button>
+        <button class="ghost" id="openPacks">Open folder</button>
+        <button class="ghost" id="refreshPacks">Refresh</button>
+      </div>
+    </div>
+    <p class="hint">Click a pack to switch to it. You'll hear a preview straight away.</p>
+    <div class="packs" id="packs"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Feel</h2></div>
+
+    <div class="row">
+      <label for="volume">Volume</label>
+      <input type="range" id="volume" min="0" max="100" step="1">
+      <output id="volumeOut">70%</output>
+    </div>
+
+    <div class="row toggle-row">
+      <label for="keyUpEnabled">
+        Release sounds
+        <span class="note">A quieter click when you let go of a key.</span>
+      </label>
+      <input type="checkbox" id="keyUpEnabled" class="check">
+    </div>
+
+    <div class="row" data-requires="keyUpEnabled">
+      <label for="keyUpVolume">Release volume</label>
+      <input type="range" id="keyUpVolume" min="0" max="100" step="1">
+      <output id="keyUpVolumeOut">45%</output>
+    </div>
+
+    <hr>
+
+    <div class="row toggle-row">
+      <label for="randomizePitch">
+        Vary the pitch
+        <span class="note">Stops fast typing sounding like a machine gun.</span>
+      </label>
+      <input type="checkbox" id="randomizePitch" class="check">
+    </div>
+
+    <div class="row" data-requires="randomizePitch">
+      <label for="pitchVariance">Pitch spread</label>
+      <input type="range" id="pitchVariance" min="0" max="30" step="1">
+      <output id="pitchVarianceOut">8%</output>
+    </div>
+
+    <div class="row toggle-row">
+      <label for="randomizeVolume">
+        Vary the volume
+        <span class="note">Mimics hitting some keys harder than others.</span>
+      </label>
+      <input type="checkbox" id="randomizeVolume" class="check">
+    </div>
+
+    <div class="row" data-requires="randomizeVolume">
+      <label for="volumeVariance">Volume spread</label>
+      <input type="range" id="volumeVariance" min="0" max="30" step="1">
+      <output id="volumeVarianceOut">12%</output>
+    </div>
+
+    <hr>
+
+    <div class="row toggle-row">
+      <label for="suppressRepeats">
+        Ignore held keys
+        <span class="note">One sound per press, even if you hold the key down.</span>
+      </label>
+      <input type="checkbox" id="suppressRepeats" class="check">
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Try each key</h2></div>
+    <p class="hint">Every group gets its own sound. Tap one to hear it.</p>
+    <div class="groups" id="groups"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Stay quiet in these apps</h2>
+      <button class="ghost" id="muteCurrent">Mute the app I'm in</button>
+    </div>
+    <p class="hint" id="muteHint">
+      Typeback goes silent while one of these is focused. Opera GX is here by
+      default because it already makes its own key sounds.
+    </p>
+
+    <form class="add-app" id="addAppForm">
+      <input type="text" id="addAppInput" placeholder="e.g. discord.exe" spellcheck="false" autocomplete="off">
+      <button type="submit" class="ghost">Add</button>
+    </form>
+
+    <ul class="applist" id="mutedApps"></ul>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>System</h2></div>
+
+    <div class="row toggle-row" id="autostartRow">
+      <label for="launchAtStartup">
+        Start with Windows
+        <span class="note" id="autostartNote">Launches straight to the tray.</span>
+      </label>
+      <input type="checkbox" id="launchAtStartup" class="check">
+    </div>
+
+    <div class="row toggle-row">
+      <label for="startMinimized">
+        Start in the tray
+        <span class="note">Skip this window when Typeback opens.</span>
+      </label>
+      <input type="checkbox" id="startMinimized" class="check">
+    </div>
+
+    <div class="row toggle-row">
+      <label>
+        Mute shortcut
+        <span class="note" id="hotkeyNote">Works anywhere, even in games.</span>
+      </label>
+      <kbd id="hotkey">Ctrl + Alt + M</kbd>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span id="version"></span>
+    <div class="actions">
+      <button class="ghost" id="reset">Reset settings</button>
+      <button class="danger" id="quit">Quit Typeback</button>
+    </div>
+  </footer>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

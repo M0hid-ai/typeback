@@ -1,0 +1,345 @@
+/*
+  Typeback settings window.
+  Dark by default - this is a utility that lives in the tray, and it's usually
+  opened next to an editor rather than admired on its own.
+*/
+
+:root {
+  --bg: #14151a;
+  --panel: #1c1e26;
+  --panel-2: #232631;
+  --border: #2e3240;
+  --border-soft: #262a36;
+  --text: #e7e9f0;
+  --muted: #959bab;
+  --accent: #5b8cff;
+  --accent-dim: rgba(91, 140, 255, 0.16);
+  --danger: #ff6b6b;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* This is a chrome-less utility window; selecting its labels serves nobody. */
+  user-select: none;
+}
+
+h1, h2 { margin: 0; font-weight: 600; }
+h1 { font-size: 17px; letter-spacing: -0.01em; }
+h2 { font-size: 14px; }
+hr { border: 0; border-top: 1px solid var(--border-soft); margin: 18px 0; }
+
+/* ---------------------------------------------------------------- topbar */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  background: rgba(20, 21, 26, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand img { border-radius: 8px; }
+.sub { margin: 1px 0 0; font-size: 12px; color: var(--muted); }
+
+/* master on/off switch */
+
+.master { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.master input { position: absolute; opacity: 0; pointer-events: none; }
+
+.switch {
+  position: relative;
+  width: 44px;
+  height: 25px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+.master input:checked + .switch { background: var(--accent); border-color: var(--accent); }
+.master input:checked + .switch::after { transform: translateX(19px); background: #fff; }
+.master input:focus-visible + .switch { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.master-label { font-size: 13px; color: var(--muted); min-width: 28px; }
+
+/* ------------------------------------------------------------------ main */
+
+main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 20px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.hint { margin: 6px 0 14px; font-size: 12.5px; color: var(--muted); }
+.actions { display: flex; gap: 8px; }
+
+/* --------------------------------------------------------------- buttons */
+
+button {
+  font: inherit;
+  font-size: 12.5px;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+
+.ghost {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.ghost:hover { background: #2b2f3c; border-color: #3a3f50; }
+
+.danger { background: transparent; border: 1px solid #4a2b2f; color: var(--danger); }
+.danger:hover { background: rgba(255, 107, 107, 0.1); border-color: var(--danger); }
+
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ----------------------------------------------------------------- packs */
+
+.packs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.pack {
+  text-align: left;
+  padding: 13px 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+}
+.pack:hover { border-color: #46506b; background: #272b38; }
+
+.pack[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.pack .name { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 13.5px; }
+.pack .desc { margin-top: 4px; font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--border);
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ rows */
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 220px 48px;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 0;
+}
+
+.row.toggle-row { grid-template-columns: 1fr auto; }
+
+.row label { font-size: 13.5px; }
+.note { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+output { font-size: 12.5px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* A dependent row stays visible but clearly inert when its parent is off -
+   hiding it would make the panel jump around as you toggle things. */
+.row[data-requires].disabled { opacity: 0.38; pointer-events: none; }
+
+/* sliders */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--panel);
+  cursor: grab;
+}
+input[type="range"]:active::-webkit-slider-thumb { cursor: grabbing; }
+input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+/* checkboxes */
+
+.check {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease;
+  flex: none;
+}
+.check::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+.check:checked { background: var(--accent); border-color: var(--accent); }
+.check:checked::after { transform: translateX(18px); background: #fff; }
+.check:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------------------------------------------------------------- groups */
+
+.groups { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.group {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 14px;
+  color: var(--text);
+  font-size: 12.5px;
+}
+.group:hover { border-color: var(--accent); background: var(--accent-dim); }
+/* Flash on press so a muted app or a broken pack is visibly different from a
+   click that did nothing. */
+.group:active { transform: translateY(1px); }
+
+/* -------------------------------------------------------------- app list */
+
+.add-app { display: flex; gap: 8px; margin-bottom: 12px; }
+
+.add-app input {
+  flex: 1;
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  user-select: text;
+}
+.add-app input::placeholder { color: #6e7486; }
+.add-app input:focus { outline: none; border-color: var(--accent); }
+
+.applist { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+
+.applist li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 6px 5px 13px;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.applist .active { border-color: var(--accent); color: var(--accent); }
+
+.applist button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1;
+}
+.applist button:hover { background: rgba(255, 107, 107, 0.15); color: var(--danger); }
+
+.empty { color: var(--muted); font-size: 12.5px; font-style: italic; }
+
+/* ---------------------------------------------------------------- footer */
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+kbd {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font: inherit;
+  font-size: 12px;
+}
+
+kbd.bad { border-color: #4a2b2f; color: var(--danger); }
+
+/* Respect the OS setting - some people get motion sick, and none of this
+   animation carries meaning. */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
