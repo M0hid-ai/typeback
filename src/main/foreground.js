@@ -123,4 +123,60 @@ function isAvailable() {
   return available;
 }
 
-module.exports = { getForegroundExe, isAvailable, invalidate };
+// ---------------------------------------------------------------------------
+// watcher
+// ---------------------------------------------------------------------------
+
+// Even a cache hit costs a GetForegroundWindow call, measured at ~150us. That's
+// small, but it's 150us sitting in front of every single keystroke for a value
+// that changes when you alt-tab - i.e. almost never, in keystroke terms. So a
+// timer keeps it fresh in the background and the keystroke path just reads a
+// variable. Polling also means a hung foreground window can never stall a key.
+const WATCH_INTERVAL_MS = 350;
+
+let watchTimer = null;
+let current = null;
+
+function tick(onChange) {
+  const exe = getForegroundExe();
+  if (exe === current) return;
+  const previous = current;
+  current = exe;
+  if (typeof onChange === 'function') onChange(exe, previous);
+}
+
+function startWatching(onChange, intervalMs = WATCH_INTERVAL_MS) {
+  if (!init()) return false;
+  stopWatching();
+  tick(onChange);                       // seed immediately, don't wait a tick
+  watchTimer = setInterval(() => tick(onChange), intervalMs);
+  if (watchTimer.unref) watchTimer.unref();
+  return true;
+}
+
+function stopWatching() {
+  if (watchTimer) clearInterval(watchTimer);
+  watchTimer = null;
+}
+
+/** The focused exe as of the last poll. Free to call - it's just a read. */
+function currentExe() {
+  return current;
+}
+
+/** Force an immediate re-read, e.g. after the mute list changes. */
+function refresh(onChange) {
+  invalidate();
+  tick(onChange);
+  return current;
+}
+
+module.exports = {
+  getForegroundExe,
+  isAvailable,
+  invalidate,
+  startWatching,
+  stopWatching,
+  currentExe,
+  refresh
+};
