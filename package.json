@@ -29,6 +29,7 @@
       "output": "dist",
       "buildResources": "build"
     },
+    "npmRebuild": false,
     "files": [
       "src/**/*",
       "packs/**/*",
@@ -40,6 +41,12 @@
       "**/*.node",
       "**/node_modules/koffi/**"
     ],
+    "electronFuses": {
+      "runAsNode": false,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "onlyLoadAppFromAsar": true
+    },
     "win": {
       "icon": "build/icon.ico",
       "target": [
