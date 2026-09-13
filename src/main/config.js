@@ -36,7 +36,7 @@ const DEFAULTS = {
 
   muteHotkey: 'Control+Alt+M',
   launchAtStartup: false,
-  startMinimized: true
+  startMinimized: false
 };
 
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
