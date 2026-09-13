@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 
 const { Config } = require('./config');
 const { PackLibrary } = require('./packs');
@@ -9,6 +9,7 @@ const { AudioHost } = require('./audio-host');
 const { KeyHook } = require('./keyhook');
 const { HotkeyManager } = require('./hotkey');
 const { KEY_GROUPS } = require('./keymap');
+const { importPack, openPacksFolder } = require('./importer');
 const foreground = require('./foreground');
 const autostart = require('./autostart');
 
@@ -22,6 +23,7 @@ let hotkeys = null;
 let tray = null;
 let settingsWindow = null;
 
+let userPacksDir = null;
 let mutedSet = new Set();
 let hotkeyStatus = { ok: true, accelerator: null };
 let isQuitting = false;
@@ -72,10 +74,8 @@ async function init() {
   config.load();
   rebuildMuteSet();
 
-  packs = new PackLibrary({
-    builtinDir: BUILTIN_PACKS,
-    userDir: path.join(app.getPath('userData'), 'packs')
-  });
+  userPacksDir = path.join(app.getPath('userData'), 'packs');
+  packs = new PackLibrary({ builtinDir: BUILTIN_PACKS, userDir: userPacksDir });
   packs.refresh();
 
   audio = new AudioHost();
@@ -264,6 +264,26 @@ ipcMain.handle('packs:refresh', async () => {
   await loadActivePack();
   return buildState();
 });
+
+ipcMain.handle('packs:import', async () => {
+  const outcome = await importPack({ userDir: userPacksDir, parent: settingsWindow });
+  if (outcome.imported) {
+    packs.refresh();
+    // Switch to what was just imported - that's plainly what the user wanted,
+    // and it saves them hunting for it in the grid.
+    config.update({ packId: outcome.id });
+    await loadActivePack();
+  } else if (outcome.error) {
+    dialog.showMessageBox(settingsWindow, {
+      type: 'warning',
+      title: 'Could not import that pack',
+      message: outcome.error
+    });
+  }
+  return buildState();
+});
+
+ipcMain.handle('packs:open-folder', () => openPacksFolder(userPacksDir));
 
 // Preview plays through the live engine, so what you hear is exactly what you
 // get while typing - same pack, same randomisation, same volume.
