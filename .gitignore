@@ -20,3 +20,5 @@ desktop.ini
 .vscode/*
 !.vscode/extensions.json
 .idea/
+dist*/
+*.log
