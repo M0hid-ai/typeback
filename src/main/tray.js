@@ -54,13 +54,36 @@ function createTray({ getConfig, toggleEnabled, showSettings, quit }) {
 
   // Left click is the fast path for the thing people do most: shut it up.
   // Double click opens settings.
-  tray.on('click', toggleEnabled);
-  tray.on('double-click', showSettings);
+  //
+  // Windows delivers two `click` events before it decides something was a
+  // double click, so acting on click immediately would toggle mute twice and
+  // flash the icon every time you open settings. Holding the toggle for the
+  // double-click interval and cancelling it if the second click lands is the
+  // only way to tell the two gestures apart.
+  const DOUBLE_CLICK_MS = 260;
+  let pendingClick = null;
+
+  tray.on('click', () => {
+    if (pendingClick) return;             // second click of a pair; let double-click handle it
+    pendingClick = setTimeout(() => {
+      pendingClick = null;
+      toggleEnabled();
+    }, DOUBLE_CLICK_MS);
+  });
+
+  tray.on('double-click', () => {
+    clearTimeout(pendingClick);
+    pendingClick = null;
+    showSettings();
+  });
 
   return {
     tray,
     update: render,
-    destroy: () => tray.destroy()
+    destroy: () => {
+      clearTimeout(pendingClick);
+      tray.destroy();
+    }
   };
 }
 
