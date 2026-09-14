@@ -93,6 +93,7 @@ cd typeback
 npm install
 
 npm start          # run it
+npm test           # run the tests
 npm run packs      # regenerate the default sounds (needs python + numpy + pillow)
 npm run dist       # build the Windows installer
 ```
