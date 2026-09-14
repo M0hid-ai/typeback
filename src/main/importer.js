@@ -117,11 +117,28 @@ async function importPack({ userDir, parent }) {
   const source = result.filePaths[0];
 
   try {
-    let manifest = null;
+    let raw = null;
     try {
-      manifest = JSON.parse(await fs.readFile(path.join(source, 'pack.json'), 'utf8'));
+      raw = await fs.readFile(path.join(source, 'pack.json'), 'utf8');
     } catch {
+      // No manifest at all - a folder of loose sounds. We'll write one for it.
+    }
+
+    let manifest = null;
+    if (raw === null) {
       manifest = await synthesiseManifest(source);
+    } else {
+      // A pack.json that exists but won't parse is a mistake the author needs to
+      // hear about. Quietly guessing a manifest instead threw away their group
+      // assignments without ever saying why.
+      try {
+        manifest = JSON.parse(raw);
+      } catch (err) {
+        return { imported: false, error: `pack.json isn't valid JSON: ${err.message}` };
+      }
+      if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+        return { imported: false, error: 'pack.json should be a JSON object.' };
+      }
     }
 
     if (!manifest) {
