@@ -110,8 +110,13 @@ async function decodeAll(list) {
   return out;
 }
 
+// Bumped per load. Decoding is async, so two quick pack switches can finish out
+// of order - without this the slower, older pack would win.
+let loadGeneration = 0;
+
 async function loadPack(payload) {
   ensureContext();
+  const generation = ++loadGeneration;
   const next = Object.create(null);
 
   for (const [group, kinds] of Object.entries(payload.groups || {})) {
@@ -120,6 +125,8 @@ async function loadPack(payload) {
       up: await decodeAll(kinds.up || [])
     };
   }
+
+  if (generation !== loadGeneration) return;
 
   buffers = next;
   lastIndex.clear();

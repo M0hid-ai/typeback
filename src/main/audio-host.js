@@ -19,6 +19,7 @@ class AudioHost {
     this.pendingPack = null;
     this.settings = null;
     this.loadedPackId = null;
+    this.loadSeq = 0;
   }
 
   start() {
@@ -75,6 +76,7 @@ class AudioHost {
    */
   async loadPack(pack) {
     if (!pack) return;
+    const seq = ++this.loadSeq;
 
     const cache = new Map();
     const readOnce = async (file) => {
@@ -95,6 +97,10 @@ class AudioHost {
         up: await Promise.all(kinds.up.map(readOnce))
       };
     }
+
+    // Reading takes a moment. If another pack was picked in the meantime this
+    // result is stale, and sending it would replace the newer pack with the old.
+    if (seq !== this.loadSeq) return;
 
     const payload = { packId: pack.id, groups };
     if (this.ready) this.send('audio:load-pack', payload);
