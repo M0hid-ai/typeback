@@ -44,7 +44,9 @@ function resolveList(dir, list) {
     // arbitrary files elsewhere on the machine.
     const abs = path.resolve(dir, entry);
     const rel = path.relative(dir, abs);
-    if (rel.startsWith('..') || path.isAbsolute(rel)) {
+    // Compare whole segments: a file literally called "..clack.wav" sits inside
+    // the pack and is fine. Only a leading ".." segment actually escapes it.
+    if (rel === '..' || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel)) {
       console.warn(`[packs] ignoring path outside pack: ${entry}`);
       continue;
     }
