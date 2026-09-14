@@ -21,6 +21,7 @@ Packs differ by how those three are balanced. A "click" is mostly transient; a
 "thock" is mostly thump.
 """
 
+import hashlib
 import json
 import math
 import shutil
@@ -222,7 +223,10 @@ GROUP_PROFILE = {
 def seed_for(pack_id, group, kind, index):
     """Stable per-file seed, so output is reproducible across runs and machines."""
     key = f"{pack_id}/{group}/{kind}/{index}"
-    return int.from_bytes(key.encode("utf-8"), "little") % (2 ** 32)
+    # Hash the whole key. Reading the raw bytes little-endian and taking mod 2**32
+    # only ever kept the first four characters, so every file in a pack shared
+    # one seed and the "alternates" came out as identical copies.
+    return int.from_bytes(hashlib.sha256(key.encode("utf-8")).digest()[:4], "little")
 
 
 def build_pack(pack_id, spec):
