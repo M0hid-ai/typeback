@@ -97,6 +97,14 @@ async function init() {
   hotkeys = new HotkeyManager();
   applyHotkey();
 
+  // The login item lives in the registry, and people remove it from Task
+  // Manager's Startup tab without ever opening Typeback. Trust the registry over
+  // our saved copy, or the switch shows "on" for something that won't happen.
+  if (autostart.isSupported()) {
+    const actual = autostart.get();
+    if (actual !== config.get('launchAtStartup')) config.update({ launchAtStartup: actual });
+  }
+
   config.on('change', onConfigChange);
 
   const { createTray } = require('./tray');
