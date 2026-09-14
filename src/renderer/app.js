@@ -55,11 +55,16 @@ function renderStatus() {
   let text;
   if (!config.enabled) text = 'Muted everywhere';
   else if (mutedHere) text = `Staying quiet in ${app}`;
-  else if (app) text = `Listening - you're in ${app}`;
+  else if (app) text = `Listening - last app was ${app}`;
   else text = 'Listening for keystrokes';
 
   $('statusLine').textContent = text;
   $('enabledLabel').textContent = config.enabled ? 'On' : 'Off';
+
+  // Name the app on the button, so it's obvious what a click will mute.
+  const mute = $('muteCurrent');
+  mute.textContent = app ? `Mute ${app}` : "Mute the app I'm in";
+  mute.disabled = !app || mutedHere || !runtime.foregroundAvailable;
 }
 
 function renderPacks() {

@@ -137,8 +137,15 @@ const WATCH_INTERVAL_MS = 350;
 let watchTimer = null;
 let current = null;
 
+// Our own windows (settings, the hidden audio host) take focus too. They must
+// never count as "the app you're in", otherwise "mute the app I'm in" ends up
+// muting Typeback itself - which is what it did whenever you clicked it.
+const SELF_EXE = path.basename(process.execPath).toLowerCase();
+let lastExternal = null;
+
 function tick(onChange) {
   const exe = getForegroundExe();
+  if (exe && exe !== SELF_EXE) lastExternal = exe;
   if (exe === current) return;
   const previous = current;
   current = exe;
@@ -164,6 +171,11 @@ function currentExe() {
   return current;
 }
 
+/** The last focused app that isn't Typeback. What "the app I'm in" means. */
+function lastExternalExe() {
+  return lastExternal;
+}
+
 /** Force an immediate re-read, e.g. after the mute list changes. */
 function refresh(onChange) {
   invalidate();
@@ -178,5 +190,6 @@ module.exports = {
   startWatching,
   stopWatching,
   currentExe,
+  lastExternalExe,
   refresh
 };

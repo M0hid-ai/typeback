@@ -228,7 +228,7 @@ function buildState() {
     packs: packs.summaries(),
     groups: KEY_GROUPS,
     runtime: {
-      currentApp: foreground.currentExe(),
+      currentApp: foreground.lastExternalExe(),
       foregroundAvailable: foreground.isAvailable(),
       hotkey: hotkeyStatus,
       autostartSupported: autostart.isSupported(),
@@ -294,7 +294,7 @@ ipcMain.handle('preview', (_e, group) => {
 });
 
 ipcMain.handle('mute:add-current', () => {
-  const exe = foreground.currentExe();
+  const exe = foreground.lastExternalExe();
   if (exe) {
     config.update({ mutedApps: [...config.get('mutedApps'), exe] });
   }
